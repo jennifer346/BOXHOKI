@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Tebak Amplop</title>
+
+<style>
+body {
+  text-align: center;
+  font-family: Arial;
+  background: #f4f4f4;
+}
+
+.box {
+  display: inline-block;
+  margin: 15px;
+  cursor: pointer;
+}
+
+.box img {
+  width: 120px;
+}
+
+#hasil img {
+  max-width: 90%;
+  margin-top: 20px;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🎁 Pilih 1 Amplop 🎁</h2>
+<p>*Reset setiap 24 jam*</p>
+
+<div class="box" onclick="pilih(0)"><img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2N6cDRzaW1obDc1a2g3ZzF6Znh0aGFxd3BmNms3ZTF0cnpnazRsayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/vYUWWJty4qIdW/giphy.gif"></div>
+<div class="box" onclick="pilih(1)"><img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2N6cDRzaW1obDc1a2g3ZzF6Znh0aGFxd3BmNms3ZTF0cnpnazRsayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/vYUWWJty4qIdW/giphy.gif"></div>
+<div class="box" onclick="pilih(2)"><img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2N6cDRzaW1obDc1a2g3ZzF6Znh0aGFxd3BmNms3ZTF0cnpnazRsayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/vYUWWJty4qIdW/giphy.gif"></div>
+
+<div id="hasil"></div>
+<canvas id="confetti"></canvas>
+
+<script>
+/* ===== RESET 24 JAM ===== */
+const now = Date.now();
+const lastPlay = localStorage.getItem("last_play");
+
+if (lastPlay && now - lastPlay > 86400000) {
+  localStorage.removeItem("sudah_main");
+  localStorage.removeItem("last_play");
+}
+
+/* ===== DATA HADIAH (PROBABILITY) =====
+60% zonk
+20% Rp2000
+20% Rp5000
+*/
+let hadiahPool = [
+  "zonk","zonk","zonk","zonk","zonk","zonk",
+  "rp2000","rp2000",
+  "rp5000","rp5000"
+];
+
+// acak pool
+hadiahPool.sort(() => Math.random() - 0.5);
+
+// tentukan hasil
+const hasilGame = hadiahPool[Math.floor(Math.random() * hadiahPool.length)];
+const posisiMenang = Math.floor(Math.random() * 3);
+
+/* ===== PILIH AMPOLOP ===== */
+function pilih(index) {
+
+  if (localStorage.getItem("sudah_main")) {
+    alert("❌ Kamu sudah bermain hari ini");
+    return;
+  }
+
+  localStorage.setItem("sudah_main", "yes");
+  localStorage.setItem("last_play", Date.now());
+
+  if (index === posisiMenang && hasilGame !== "zonk") {
+
+    let img = hasilGame === "rp2000" ? "https://imagizer.imageshack.com/v2/640x480q70/924/Um48pn.png" : "https://imagizer.imageshack.com/v2/640x480q70/924/rigTpf.png";
+
+    document.getElementById("hasil").innerHTML =
+      `<a href="https://wa.me/6285934639285" target="_blank">
+        <img src="${img}">
+      </a>`;
+
+    confetti();
+
+  } else {
+    document.getElementById("hasil").innerHTML =
+      `<img src="https://imagizer.imageshack.com/v2/640x480q70/922/SKjaqE.jpg">`;
+  }
+}
+
+/* ===== CONFETTI WARNA WARNI ===== */
+function confetti() {
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  let colors = ["#ff0","#f00","#0f0","#00f","#f0f","#0ff"];
+  let pieces = [];
+
+  for (let i = 0; i < 200; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      size: Math.random() * 6 + 4,
+      speed: Math.random() * 4 + 2,
+      color: colors[Math.floor(Math.random() * colors.length)]
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x,p.y,p.size,p.size);
+      p.y += p.speed;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+</script>
+
+</body>
+</html>
